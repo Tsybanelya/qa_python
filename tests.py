@@ -9,9 +9,8 @@ class TestBooksCollector:
 # Проверка: нельзя добавить книгу с некорректной длиной названия
 @pytest.mark.parametrize('name', ['', 'a'*41])
 def test_add_new_book_invalid_length(collector, name):
-    
-    collector.add_new_book(name)
-    assert name not in collector.get_books_genre()
+       collector.add_new_book(name)
+       assert name not in collector.get_books_genre()
 # Проверка: нельзя добавить дублирующую книгу
 
 def test_add_new_book_duplicate(collector):
@@ -53,15 +52,18 @@ def test_get_books_for_children_excludes_age_rating_genre(collector):
     assert 'Взрослая книга' not in collector.get_books_for_children()
     assert 'Детская книга' in collector.get_books_for_children()
 
-# Проверка: добавление и удаление книги из избранного
-
-def test_add_and_delete_book_in_favorites(collector):
+# Проверка: успешное добавление книги в избранное
+def test_add_book_in_favorites_positive(collector):
     collector.add_new_book('Книга')
     collector.add_book_in_favorites('Книга')
     assert 'Книга' in collector.get_list_of_favorites_books()
+
+# Проверка: успешное удаление книги из избранного
+def test_delete_book_from_favorites_positive(collector):
+    collector.add_new_book('Книга')
+    collector.add_book_in_favorites('Книга')
     collector.delete_book_from_favorites('Книга')
     assert 'Книга' not in collector.get_list_of_favorites_books()
-
 # Проверка: нельзя добавить в избранное книгу, которой нет в списке книг
 def test_add_book_in_favorites_only_if_in_books_genre(collector):
     collector.add_book_in_favorites('Неизвестная')
@@ -73,3 +75,21 @@ def test_cannot_add_book_twice_in_favorites(collector):
     collector.add_book_in_favorites('Книга-2')
     collector.add_book_in_favorites('Книга-2')
     assert collector.get_list_of_favorites_books().count('Книга-2') == 1    
+# Позитивный тест: возвращает жанр книги по имени;
+def test_get_book_genre_positive(collector):
+    collector.books_genre['Тестовая книга'] = 'Фантастика'
+    result = collector.get_book_genre('Тестовая книга')
+    assert result == 'Фантастика'
+
+# Позитивный тест: возвращает словарь книг c жанрами
+def test_get_books_genre_positive(collector):
+    collector.books_genre['Книга1'] = 'Жанр1'
+    collector.books_genre['Книга2'] = 'Жанр2'
+    result = collector.get_books_genre()
+    assert result == {'Книга1': 'Жанр1', 'Книга2': 'Жанр2'}
+
+# Позитивный тест: возвращает список избранных книг
+def test_get_list_of_favorites_books_positive(collector):
+    collector.favorites = ['Книга3', 'Книга4']
+    result = collector.get_list_of_favorites_books()
+    assert result == ['Книга3', 'Книга4']
